@@ -59,3 +59,5 @@ Makefile
 *.log
 *.trs
 src/main
+tests/check_linked_list
+tests/check_stack
