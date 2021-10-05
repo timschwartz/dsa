@@ -56,3 +56,5 @@ Makefile
 ### Autotools Patch ###
 
 *.o
+*.log
+*.trs

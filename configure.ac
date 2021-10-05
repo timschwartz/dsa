@@ -6,6 +6,8 @@ AM_INIT_AUTOMAKE([subdir-objects])
 LT_INIT([disable-static])
 
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
+
+PKG_CHECK_MODULES([CHECK], [check >= 0.15.2])
 
 AC_OUTPUT
