@@ -6,32 +6,81 @@
 
 START_TEST (test_empty_list)
 {
-    linked_list_t *l = linked_list();
-    ck_assert_int_eq(l->element, 0);
-    ck_assert_ptr_eq(l->next, NULL);
+    sl_list_t l = sl_list();
+    ck_assert_ptr_eq(l.head, NULL);
 }
 END_TEST
 
 START_TEST (test_make_list)
 {
-    linked_list_t *l = linked_list();
+    sl_list_t l = sl_list();
+    sl_node_t *n;
     uint64_t check_array[10];
 
     int i = 0;
-    for(i = sizeof(check_array) / sizeof(uint64_t) - 1; i >= 0; i--)
+    for(i = 0; i < sizeof(check_array) / sizeof(uint64_t); i++)
     {
         check_array[i] = rand();
-        l = linked_list_add(check_array[i], l);
+        l = sl_list_add(l, check_array[i]);
     }
 
-    i = 0;
-    do
+    n = l.head;
+    for(i = 0; i < sizeof(check_array) / sizeof(uint64_t); i++)
     {
-        printf("Checking %d: %d\n", i, l->element);
-        ck_assert_int_eq(l->element, check_array[i]);
-        i++;
-        l = l->next;
-    } while(l->next != NULL);
+        ck_assert_int_eq(n->element, check_array[i]);
+        n = n->next;
+    }
+}
+END_TEST
+
+START_TEST (test_insert_after)
+{
+    sl_list_t l = sl_list();
+    l.head = sl_node_empty();
+    ck_assert_ptr_eq(l.head->next, NULL);
+    sl_node_t *n = sl_node_insert_after(l.head, 0xDEADBEEF);
+    ck_assert_ptr_eq(l.head->next, n);
+}
+END_TEST
+
+START_TEST (test_remove_after)
+{
+    sl_list_t l = sl_list();
+    l.head = sl_node_empty();
+    l.head->element = 0xCAFEBABE;
+    sl_node_t *n = sl_node_insert_after(l.head, 0xDEADBEEF);
+    n = sl_node_insert_after(n, 0xDECAFBAD);
+
+    ck_assert_int_eq(l.head->next->element, 0xDEADBEEF);
+    ck_assert_int_eq(l.head->next->next->element, 0xDECAFBAD);
+
+    n = sl_node_remove_after(l.head);
+    ck_assert_int_eq(l.head->next->element, 0xDECAFBAD);
+}
+END_TEST
+
+START_TEST (test_insert_beginning)
+{
+    sl_list_t l = sl_list();
+    l.head = sl_node_empty();
+    l.head->element = 0xDEADBEEF;
+    l = sl_list_insert_beginning(l, 0xCAFEBABE);
+    ck_assert_int_eq(l.head->element, 0xCAFEBABE);
+    ck_assert_int_eq(l.head->next->element, 0xDEADBEEF);
+}
+END_TEST
+
+START_TEST (test_remove_beginning)
+{
+    sl_list_t l = sl_list();
+    l.head = sl_node_empty();
+    l.head->element = 0xDEADBEEF;
+    l = sl_list_insert_beginning(l, 0xCAFEBABE);
+    ck_assert_int_eq(l.head->element, 0xCAFEBABE);
+    ck_assert_int_eq(l.head->next->element, 0xDEADBEEF);
+
+    l = sl_list_remove_beginning(l);
+    ck_assert_int_eq(l.head->element, 0xDEADBEEF);
 }
 END_TEST
 
@@ -42,6 +91,10 @@ Suite *linked_list_suite(void)
 
     tcase_add_test(tc_core, test_empty_list);
     tcase_add_test(tc_core, test_make_list);
+    tcase_add_test(tc_core, test_insert_after);
+    tcase_add_test(tc_core, test_remove_after);
+    tcase_add_test(tc_core, test_insert_beginning);
+    tcase_add_test(tc_core, test_remove_beginning);
     suite_add_tcase(s, tc_core);
     return s;
 }

@@ -2,20 +2,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-linked_list_t *linked_list()
+sl_node_t *sl_node_empty()
 {
-    linked_list_t *l = (linked_list_t *)malloc(sizeof(linked_list_t));
-    l->element = 0;
-    l->next = NULL;    
-    l->head = l;
+    sl_node_t *n = (sl_node_t *)malloc(sizeof(sl_node_t));
+    n->next = NULL;
+    return n;
+}
+
+sl_list_t sl_list()
+{
+    sl_list_t l;
+    l.head = NULL;
     return l;
 }
 
-linked_list_t *linked_list_add(uint64_t element, linked_list_t *l)
+sl_list_t sl_list_add(sl_list_t l, uint64_t element)
 {
-    linked_list_t *n = linked_list();
+    sl_node_t *n = sl_node_empty();
+
+    if(l.head != NULL)
+    {
+        sl_node_t *last = l.head;
+        while(last->next != NULL) last = last->next;
+        last->next = n;
+    }
+    else
+    {
+        l.head = n;
+    }
+
     n->element = element;
-    l->head = n;
-    n->next = l;
+    return l;
+}
+
+sl_node_t *sl_node_insert_after(sl_node_t *n, uint64_t element)
+{
+    n->next = sl_node_empty();
+    n = n->next;
+    n->element = element;
     return n;
+}
+
+sl_node_t *sl_node_remove_after(sl_node_t *n)
+{
+    sl_node_t *next = n->next->next;
+    free(n->next);
+    n->next = next;
+    return next;
+}
+
+sl_list_t sl_list_insert_beginning(sl_list_t l, uint64_t element)
+{
+    sl_node_t *n = sl_node_empty();
+    n->element = element;
+    n->next = l.head;
+    l.head = n;
+    return l;
+}
+
+sl_list_t sl_list_remove_beginning(sl_list_t l)
+{
+    sl_node_t *next = l.head->next;
+    free(l.head);
+    l.head = next;
+    return l;
 }
